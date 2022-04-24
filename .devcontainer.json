@@ -1,0 +1,7 @@
+{
+    "name": "CS 159",
+    "image": "harveymudd/cs159-student:spring2022",
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+    }
+}
