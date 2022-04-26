@@ -5,6 +5,7 @@ import csv
 import nltk
 import re
 
+# meant to be run on the big .tsv dataset, not the smaller two
 def main(args):
     # choose to separate files into individual
     tagger = nltk.tag.PerceptronTagger()
