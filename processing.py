@@ -4,12 +4,21 @@ import argparse
 import csv
 import nltk
 import re
+import numpy as np
+import pickle
+import pdb
+
+TAG_PROB_THRESHOLD = 0.2
 
 # meant to be run on the big .tsv dataset, not the smaller two
 def main(args):
     # choose to separate files into individual
     tagger = nltk.tag.PerceptronTagger()
     writer = csv.writer(args.out_file)
+
+    # TODO: generate with model.py
+    model = pickle.load(open('model.pkl', 'rb'))
+    model._create_cache()
 
     i = 0
     args.in_file.readline()
@@ -20,10 +29,14 @@ def main(args):
         # make a bunch of features
         pubid = words[0]
         year = words[1]
-        targ = words[2]
+        targ = words[2].lower()
         clue = ' '.join(words[3:])
-        targ_tag = tagger.tag([targ])[0][1]
-        targ_len = len(targ)
+        try:
+            # attempt to create tags associated with probabilities
+            targ_tag = tag_prob_pairs(model, targ)
+        # default to perceptrontagger for words that HMM doesn't recognize
+        except KeyError:
+            targ_tag = tagger.tag(nltk.word_tokenize(targ))[0][1]
 
         writer.writerow([pubid, year, clue, targ, targ_tag])
         if i % 10000 == 0 and i:
@@ -32,7 +45,16 @@ def main(args):
             if i > args.limit: break
         i += 1
 
+def tag_prob_pairs(model, word):
+    P, O, _, S = model._cache
 
+    V = np.exp(P + O[:, S[word]])
+    V /= np.sum(V)
+
+    indices = np.where(V >= TAG_PROB_THRESHOLD)[0]
+    if len(indices) == 0:
+        indices = [np.argmax(V)]
+    return list(zip(V[indices], list(map(model._states.__getitem__, indices))))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process a directory of crossword data stored in the xd format and output to a pickle file with ")
