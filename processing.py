@@ -17,10 +17,10 @@ def main(args):
     writer = csv.writer(args.out_file)
 
     # TODO: generate with model.py
-    model = pickle.load(open('model.pkl', 'rb'))
-    model._create_cache()
+    # model = pickle.load(open('model.pkl', 'rb'))
+    # model._create_cache()
 
-    i = 0
+    i = 1
     args.in_file.readline()
     for line in args.in_file.readlines():
         words = line.split()
@@ -31,18 +31,13 @@ def main(args):
         year = words[1]
         targ = words[2].lower()
         clue = ' '.join(words[3:])
-        try:
-            # attempt to create tags associated with probabilities
-            targ_tag = tag_prob_pairs(model, targ)
-        # default to perceptrontagger for words that HMM doesn't recognize
-        except KeyError:
-            targ_tag = tagger.tag(nltk.word_tokenize(targ))[0][1]
+        targ_tag = tagger.tag(nltk.word_tokenize(targ))[0][1]
 
         writer.writerow([pubid, year, clue, targ, targ_tag])
         if i % 10000 == 0 and i:
             print(f"Processed {i} clue/targ pairs")
         if args.limit:
-            if i > args.limit: break
+            if i == args.limit: break
         i += 1
 
 def tag_prob_pairs(model, word):
