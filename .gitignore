@@ -11,4 +11,4 @@ test_trainer
 *.fls
 *.log
 *.out
-
+*.gz

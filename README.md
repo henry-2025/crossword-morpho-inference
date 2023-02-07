@@ -1,0 +1,21 @@
+# Crossword Morphological Inference Filter
+## Motivation
+*From writeup Introduction section:* "Crossword solving as a problem in NLP has been studied for years. The first system designed to programmatically solve crosswords was [Proverb](https://courses.cs.washington.edu/courses/cse573/08au/papers/Keim99.pdf), and two more modern state-of-the-art solvers are [WebCrow](https://link.springer.com/chapter/10.1007/11590323_37) and [Dr. Fill](https://arxiv.org/abs/1401.4597). While most of these systems have long been in development, there is no agreed-upon best architecture for programmatic crossword solving. Furthermore, all of these systems are quite complex, consisting of many stages of processing and several tiers of abstraction. These reasons all make the component-wise performance of each system opaque and thus make it difficult for a reader of one of these works to make objective evaluations of such systems.
+
+Our work focuses on a critical processing stage in WebCrow's architecture called morphological filtering. At this stage, potential candidate answers are ranked or discarded based on certain morphological characteristics that the filter infers from the clue. If this filter performs well, then the candidate lists are small and accurate, giving the constraint problem solver a significantly easier puzzle to solve. Because there is no documented performance for this morphological filter, we have no idea if we could do better with cutting-edge NLP tools. In this work, we will design our own morphological filter and evaluate it against metrics that indicate how it might perform in an actual crossword solving system. We will not be developing a full-fledged crossword solver, as this is much too large a task to accomplish in a single research paper and it involves a large amount of focus outside the field of NLP."
+
+## Morphological Filtering
+WebCrow accomplishes morphological filtering using a multi-class kernel-based support vector machine. At a high level, this is just an SVM that is able to output multi-class predictions. The "kernel-based" part of this name means that the SVM uses a function that maps the inputs to a higher-dimensional feature space, allowing the model to create nonlinear boundaries in its prediction space.
+
+Currently, contextual embeddings and transformer models are very popular and powerful in the NLP sphere. They train well on small datasets and are able to achieve state-of-the-art performance on a number of NLP tasks. Our hope in this project was that we could train a BERT-based model to perform morphological inference on crossword clues. Since we did not have access WebCrow's internal morphological filter, we could not directly compare our model's performance to that of the crossword solver. However, we can get a general idea of the model's performance by performing model evaluation.
+
+## Datasets
+The primary challenge encountered in this project was constructing a sufficiently-large and representative training data set for our models. The group working on this project first attempted to apply the non-contextual morphological inferences to an existing crossword dataset. Obviously, many of the labels in this dataset were incorrect and we eventually resorted to manually labeling one of these datasets consisting of 2500 examples from [xd.saul.dw](xd.saul.dw), a public crossword database. This only took a couple hours out of an afternoon, so I'd say we actually spent more time trying to programmatically construct a dataset.
+
+## Results
+When trained on a 80/20 split of our 2500 example dataset, the model was able to achieve a weighted F-score of 0.70. Across the 5 most common part of speech tags, one can see a clear trend of correct tag prediction
+
+![PoS Confusion Matrix](/writeup/figures/confusion.png)
+
+## Further Work
+This was just a school project that I did with a classmate, so it is likely that development on this project will not be frequent or ongoing. I am pretty interested in what we were able to do with this pretty unoptimized setup, so who knows. I may come back to it some day and put more hours into it.
